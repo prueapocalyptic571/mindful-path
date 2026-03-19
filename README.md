@@ -36,7 +36,7 @@ Mindful Path draws from universal Buddhist principles without dogma:
 
 ## Installation
 
-### Arch Linux (AUR)
+### Arch Based Distros (AUR)
 
 ```bash
 yay -S mindful-path

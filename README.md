@@ -36,6 +36,14 @@ Mindful Path draws from universal Buddhist principles without dogma:
 
 ## Installation
 
+### Arch Linux (AUR)
+
+```bash
+yay -S mindful-path
+```
+
+### Manual install
+
 **Requirements:** Python 3.11+, PyQt6
 
 ```bash

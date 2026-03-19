@@ -40,7 +40,7 @@ Mindful Path draws from universal Buddhist principles without dogma:
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/mindful-path.git
+git clone https://github.com/DissoWharf/mindful-path.git
 cd mindful-path
 
 # Install dependencies

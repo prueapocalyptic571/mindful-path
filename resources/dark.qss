@@ -361,6 +361,20 @@ QScrollBar:horizontal {
     border-radius: 6px;
 }
 
+/* ── Meditation ────────────────────────────────────────────── */
+#meditation_timer {
+    font-size: 52px;
+    font-weight: 200;
+    color: #e8d8b8;
+    letter-spacing: 4px;
+}
+
+#meditation_hint {
+    color: #6a5a42;
+    font-size: 12px;
+    font-style: italic;
+}
+
 /* ── ToolTip ───────────────────────────────────────────────── */
 QToolTip {
     background-color: #2a2318;

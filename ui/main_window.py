@@ -11,6 +11,7 @@ from .habits_view import HabitsView
 from .progress_view import ProgressView
 from .reflection_view import ReflectionView
 from .about_view import AboutView
+from .meditation_view import MeditationView
 from database import Database
 
 CONFIG_PATH = os.path.expanduser("~/.mindful_path/config.json")
@@ -73,10 +74,11 @@ class MainWindow(QMainWindow):
         self.habits_view = HabitsView(self.db)
         self.progress_view = ProgressView(self.db)
         self.reflection_view = ReflectionView(self.db)
+        self.meditation_view = MeditationView()
         self.about_view = AboutView()
 
         for v in (self.today_view, self.habits_view, self.progress_view,
-                  self.reflection_view, self.about_view):
+                  self.reflection_view, self.meditation_view, self.about_view):
             self.stack.addWidget(v)
 
         self.habits_view.habits_changed.connect(self.today_view.refresh)
@@ -128,6 +130,7 @@ class MainWindow(QMainWindow):
             ("≡", "Habits"),
             ("◈", "Progress"),
             ("✦", "Reflect"),
+            ("◎", "Meditate"),
             ("☯", "About"),
         ]
         self.nav_buttons: list[NavButton] = []

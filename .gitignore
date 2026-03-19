@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# App data (stored in ~/.mindful_path/, not in repo)
+*.db
+*.db-journal
+bell.wav
+
+# Generated icon (regenerated on install)
+resources/icon.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log

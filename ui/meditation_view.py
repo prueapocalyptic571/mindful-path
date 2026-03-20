@@ -18,14 +18,41 @@ try:
 except ImportError:
     HAS_MULTIMEDIA = False
 
-# Breathing cycle: (label, duration_seconds)
-BREATH_PHASES = [
-    ("Breathe In",  4),
-    ("Hold",        4),
-    ("Breathe Out", 4),
-    ("Hold",        4),
-]
-BREATH_CYCLE = sum(d for _, d in BREATH_PHASES)
+# Breathing techniques: name → (description, [(label, seconds), ...])
+BREATH_TECHNIQUES = {
+    "Box Breathing": (
+        "Equal 4-count inhale, hold, exhale, hold. Builds focus and calm under pressure.",
+        [("Breathe In", 4), ("Hold", 4), ("Breathe Out", 4), ("Hold", 4)],
+    ),
+    "4-7-8 Relaxing Breath": (
+        "Dr. Andrew Weil's technique for sleep and anxiety. Long hold activates the parasympathetic system.",
+        [("Breathe In", 4), ("Hold", 7), ("Breathe Out", 8), ("Hold", 0)],
+    ),
+    "Coherent Breathing": (
+        "5-5 rhythm targets ~6 breaths/min, maximising heart rate variability and stress resilience.",
+        [("Breathe In", 5), ("Hold", 0), ("Breathe Out", 5), ("Hold", 0)],
+    ),
+    "Diaphragmatic": (
+        "Foundation of mindfulness practice. Extended exhale lowers cortisol and anchors attention.",
+        [("Breathe In", 4), ("Hold", 0), ("Breathe Out", 6), ("Hold", 0)],
+    ),
+    "Triangle Breathing": (
+        "Three-phase pattern without a bottom hold. A gentle step toward box breathing.",
+        [("Breathe In", 4), ("Hold", 4), ("Breathe Out", 4), ("Hold", 0)],
+    ),
+    "4-4-6-2 Calming": (
+        "Extended exhale produces a stronger parasympathetic shift. Used in clinical mindfulness training.",
+        [("Breathe In", 4), ("Hold", 4), ("Breathe Out", 6), ("Hold", 2)],
+    ),
+    "2-1-4-1 Beginner": (
+        "Gentle and accessible. Extended exhale triggers the vagal brake and quickly settles the nervous system.",
+        [("Breathe In", 2), ("Hold", 1), ("Breathe Out", 4), ("Hold", 1)],
+    ),
+    "Extended Exhale (2:1)": (
+        "Yoga pranayama principle. Double exhale time directly stimulates the vagus nerve.",
+        [("Breathe In", 4), ("Hold", 0), ("Breathe Out", 8), ("Hold", 0)],
+    ),
+}
 
 DURATIONS = [
     ("5 min",  5),
@@ -50,13 +77,20 @@ class BreathingCircle(QWidget):
         super().__init__(parent)
         self.setMinimumSize(220, 220)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self._session_elapsed = 0.0   # fractional seconds
+        self._session_elapsed = 0.0
         self._active = False
         self._phase_name = "Ready"
+        self._phases = list(BREATH_TECHNIQUES["Box Breathing"][1])
+        self._cycle = sum(d for _, d in self._phases)
 
         self._tick_timer = QTimer(self)
-        self._tick_timer.setInterval(50)          # 20 fps
+        self._tick_timer.setInterval(50)
         self._tick_timer.timeout.connect(self._tick)
+
+    def set_technique(self, phases: list):
+        self._phases = phases
+        self._cycle = max(1, sum(d for _, d in phases))
+        self._session_elapsed = 0.0
 
     def start(self):
         self._active = True
@@ -78,9 +112,9 @@ class BreathingCircle(QWidget):
 
     def _tick(self):
         self._session_elapsed += 0.05
-        pos = self._session_elapsed % BREATH_CYCLE
+        pos = self._session_elapsed % self._cycle
         acc = 0
-        for name, dur in BREATH_PHASES:
+        for name, dur in self._phases:
             acc += dur
             if pos < acc:
                 self._phase_name = name
@@ -88,23 +122,29 @@ class BreathingCircle(QWidget):
         self.update()
 
     def _phase_radius_factor(self) -> float:
-        """Returns 0.0–1.0 for current radius relative to max."""
         if not self._active:
             return 0.35
-        pos = self._session_elapsed % BREATH_CYCLE
+        pos = self._session_elapsed % self._cycle
         acc = 0
-        for name, dur in BREATH_PHASES:
-            t = (pos - acc) / dur
-            t = max(0.0, min(1.0, t))
+        prev_acc = 0
+        for i, (name, dur) in enumerate(self._phases):
+            if dur == 0:
+                acc += dur
+                prev_acc = acc
+                continue
+            t = max(0.0, min(1.0, (pos - acc) / dur))
             if pos < acc + dur:
                 if name == "Breathe In":
                     return 0.35 + 0.65 * _ease(t)
-                elif name == "Hold" and acc == 4:      # hold after in
-                    return 1.0
                 elif name == "Breathe Out":
                     return 1.0 - 0.65 * _ease(t)
-                else:                                   # hold after out
-                    return 0.35
+                else:
+                    # Hold — maintain size based on whether after in or out
+                    inhale_before = any(
+                        n == "Breathe In" for n, _ in self._phases[:i]
+                        if not all(n2 == "Breathe Out" for n2, _ in self._phases[:i])
+                    )
+                    return 1.0 if i > 0 and self._phases[i-1][0] == "Breathe In" else 0.35
             acc += dur
         return 0.35
 
@@ -204,6 +244,15 @@ class MeditationView(QWidget):
         self._dur_combo.setCurrentIndex(1)
         self._dur_combo.currentIndexChanged.connect(self._on_duration_changed)
         c_lay.addWidget(self._dur_combo)
+
+        tech_label = QLabel("Technique:")
+        c_lay.addWidget(tech_label)
+
+        self._tech_combo = QComboBox()
+        for name in BREATH_TECHNIQUES:
+            self._tech_combo.addItem(name)
+        self._tech_combo.currentTextChanged.connect(self._on_technique_changed)
+        c_lay.addWidget(self._tech_combo)
         c_lay.addStretch()
 
         if HAS_MULTIMEDIA:
@@ -214,7 +263,14 @@ class MeditationView(QWidget):
             c_lay.addWidget(self._load_btn)
 
         layout.addWidget(ctrl)
-        layout.addSpacing(16)
+        layout.addSpacing(8)
+
+        # Technique description
+        self._tech_desc = QLabel(list(BREATH_TECHNIQUES.values())[0][0])
+        self._tech_desc.setObjectName("meditation_hint")
+        self._tech_desc.setWordWrap(True)
+        layout.addWidget(self._tech_desc)
+        layout.addSpacing(8)
 
         # Breathing circle
         self._circle = BreathingCircle()
@@ -286,8 +342,12 @@ class MeditationView(QWidget):
         self._running = True
         self._paused = False
         self._session_timer.start()
+        name = self._tech_combo.currentText()
+        if name in BREATH_TECHNIQUES:
+            self._circle.set_technique(BREATH_TECHNIQUES[name][1])
         self._circle.start()
         self._dur_combo.setEnabled(False)
+        self._tech_combo.setEnabled(False)
         self._start_btn.setText("⏸  Pause")
         self._stop_btn.setVisible(True)
         if HAS_MULTIMEDIA:
@@ -321,6 +381,7 @@ class MeditationView(QWidget):
         self._session_timer.stop()
         self._circle.stop()
         self._dur_combo.setEnabled(True)
+        self._tech_combo.setEnabled(True)
         self._start_btn.setText("▶  Begin Session")
         self._stop_btn.setVisible(False)
         if HAS_MULTIMEDIA:
@@ -353,6 +414,13 @@ class MeditationView(QWidget):
             mins = self._dur_combo.currentData()
             self._duration = mins * 60
             self._update_display(self._duration)
+
+    def _on_technique_changed(self, name: str):
+        if name in BREATH_TECHNIQUES:
+            desc, phases = BREATH_TECHNIQUES[name]
+            self._tech_desc.setText(desc)
+            if not self._running and not self._paused:
+                self._circle.set_technique(phases)
 
     # ── Ambient audio ──────────────────────────────────────────────────────
 

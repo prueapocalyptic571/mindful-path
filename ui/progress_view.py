@@ -148,24 +148,19 @@ class ProgressView(QWidget):
         h_layout.addWidget(title)
         layout.addWidget(header)
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        layout.addWidget(scroll, 1)
+        self._scroll = QScrollArea()
+        self._scroll.setWidgetResizable(True)
+        self._scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        layout.addWidget(self._scroll, 1)
 
+    def refresh(self):
+        # Replace content widget entirely to avoid deleteLater flicker
         content = QWidget()
         self.content_layout = QVBoxLayout(content)
         self.content_layout.setContentsMargins(24, 16, 24, 24)
         self.content_layout.setSpacing(16)
-        scroll.setWidget(content)
-
-    def refresh(self):
-        # Clear
-        while self.content_layout.count():
-            item = self.content_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        self._scroll.setWidget(content)
 
         habits = self.db.get_habits()
         today = date.today().isoformat()

